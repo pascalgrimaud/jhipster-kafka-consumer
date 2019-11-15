@@ -20,7 +20,7 @@ public class ConsumerKafkaConsumer {
 
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    public static final String TOPIC = "topic_consumer";
+    public static final String TOPIC = "shared_topic";
 
     private final KafkaProperties kafkaProperties;
 
