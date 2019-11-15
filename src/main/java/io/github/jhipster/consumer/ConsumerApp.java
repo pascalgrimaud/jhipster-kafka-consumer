@@ -4,7 +4,6 @@ import io.github.jhipster.consumer.config.ApplicationProperties;
 import io.github.jhipster.consumer.config.DefaultProfileUtil;
 
 import io.github.jhipster.consumer.service.ConsumerKafkaConsumer;
-import io.github.jhipster.consumer.service.ConsumerKafkaProducer;
 import org.springframework.context.ConfigurableApplicationContext;
 import io.github.jhipster.config.JHipsterConstants;
 
@@ -64,7 +63,6 @@ public class ConsumerApp implements InitializingBean {
         SpringApplication app = new SpringApplication(ConsumerApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
         ConfigurableApplicationContext applicationContext = app.run(args);
-        applicationContext.getBean(ConsumerKafkaProducer.class).init();
         applicationContext.getBean(ConsumerKafkaConsumer.class).start();
         Environment env = applicationContext.getEnvironment();
         logApplicationStartup(env);
