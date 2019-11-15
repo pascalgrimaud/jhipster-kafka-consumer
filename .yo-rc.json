@@ -1,0 +1,55 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "io.github.jhipster.consumer"
+    },
+    "jhipsterVersion": "6.4.1",
+    "applicationType": "monolith",
+    "baseName": "consumer",
+    "packageName": "io.github.jhipster.consumer",
+    "packageFolder": "io/github/jhipster/consumer",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "ehcache",
+    "enableHibernateCache": true,
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "postgresql",
+    "prodDatabaseType": "postgresql",
+    "searchEngine": false,
+    "messageBroker": "kafka",
+    "serviceDiscoveryType": false,
+    "buildTool": "maven",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "Y2ZmNjg5NWI3MmNhMzVmZTJlYWU1Y2EzZTM5NjBhYzlkODI4Njg0ZmRlMWQ4NGJiMjE1ZWQ4NmUxM2U1Y2U4Nzc4NmVhOTljM2E5NzA0NDFjNDkyMTdkYjkxYzc5MGM5ZjE0MDQ1ZGFmNTliYTM2OTI5ZmMyYzNlMGUyZmI0MjM=",
+    "embeddableLaunchScript": false,
+    "testFrameworks": ["gatling", "protractor"],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [
+      {
+        "name": "generator-jhipster-vuejs",
+        "version": "1.2.0"
+      }
+    ],
+    "enableTranslation": false,
+    "clientPackageManager": "npm",
+    "blueprints": [
+      {
+        "name": "generator-jhipster-vuejs",
+        "version": "1.2.0"
+      }
+    ]
+  },
+  "generator-jhipster-vuejs": {
+    "jhipsterVersion": "6.4.1",
+    "applicationType": "monolith",
+    "baseName": "consumer",
+    "useSass": true,
+    "clientPackageManager": "npm",
+    "clientFramework": "vue",
+    "clientTheme": "pulse",
+    "clientThemeVariant": "primary"
+  }
+}
