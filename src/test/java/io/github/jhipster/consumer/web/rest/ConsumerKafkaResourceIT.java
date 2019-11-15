@@ -1,7 +1,6 @@
 package io.github.jhipster.consumer.web.rest;
 
 import io.github.jhipster.consumer.ConsumerApp;
-import io.github.jhipster.consumer.service.ConsumerKafkaProducer;
 import io.github.jhipster.consumer.service.ConsumerKafkaConsumer;
 import org.apache.kafka.common.Metric;
 import org.apache.kafka.common.MetricName;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testcontainers.containers.KafkaContainer;
 
 import java.util.Map;
@@ -30,9 +28,6 @@ public class ConsumerKafkaResourceIT {
     private static boolean started = false;
 
     private static KafkaContainer kafkaContainer;
-
-    @Autowired
-    private ConsumerKafkaProducer producer;
 
     @Autowired
     private ConsumerKafkaConsumer consumer;
@@ -55,12 +50,6 @@ public class ConsumerKafkaResourceIT {
 
     @BeforeEach
     public void setup() {
-        ConsumerKafkaResource kafkaResource = new ConsumerKafkaResource(producer);
-
-        this.restMockMvc = MockMvcBuilders.standaloneSetup(kafkaResource)
-            .build();
-
-        producer.init();
         consumer.start();
     }
 
