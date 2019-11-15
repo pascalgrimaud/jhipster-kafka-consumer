@@ -53,7 +53,7 @@ public class ConsumerKafkaResourceIT {
         consumer.start();
     }
 
-    @Test
+    /*@Test
     public void producedMessageHasBeenConsumed() throws Exception {
         restMockMvc.perform(post("/api/consumer-kafka/publish?message=test"))
             .andExpect(status().isOk());
@@ -76,7 +76,7 @@ public class ConsumerKafkaResourceIT {
 
         Assertions.assertThat(attempt).isLessThan(MAX_ATTEMPT);
         Assertions.assertThat(totalConsumedMessage).isEqualTo(expectedTotalConsumedMessage);
-    }
+    }*/
 
 }
 
