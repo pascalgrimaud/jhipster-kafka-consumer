@@ -1,38 +1,63 @@
 package io.github.jhipster.consumer.web.rest;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import io.github.jhipster.consumer.ConsumerApp;
+import io.github.jhipster.consumer.config.KafkaProperties;
+import io.github.jhipster.consumer.domain.JsonMessage;
 import io.github.jhipster.consumer.service.ConsumerKafkaConsumer;
+import io.github.jhipster.consumer.service.JsonKafkaConsumer;
+import io.github.jhipster.consumer.service.JsonMessageService;
+import io.github.jhipster.consumer.service.StringMessageService;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.Metric;
 import org.apache.kafka.common.MetricName;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.connect.json.JsonSerializer;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.KafkaContainer;
 
 import java.util.Map;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = ConsumerApp.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ConsumerKafkaResourceIT {
 
-    private MockMvc restMockMvc;
 
     private static boolean started = false;
 
     private static KafkaContainer kafkaContainer;
 
     @Autowired
-    private ConsumerKafkaConsumer consumer;
+    private  ConsumerKafkaConsumer stringMessageConsumer;
 
-    private static final int MAX_ATTEMPT = 5;
+    @Autowired
+    private  KafkaProperties kafkaProperties;
+
+    @Autowired
+    private  StringMessageService stringMessageService;
+
+    @Autowired
+    private  JsonKafkaConsumer jsonMessageConsumer;
+
+    @Autowired
+    private JsonMessageService jsonMessageService;
+
+
+    private  KafkaProducer<String, String> stringMessageProducer;
+
+    private  KafkaProducer<String, JsonNode> jsonMessageProducer;
+
+
+    private static final int MAX_ATTEMPT = 10;
 
     @BeforeAll
     public static void startServer() {
@@ -46,19 +71,53 @@ public class ConsumerKafkaResourceIT {
         kafkaContainer = new KafkaContainer("5.3.1");
         kafkaContainer.start();
         System.setProperty("kafkaBootstrapServers", kafkaContainer.getBootstrapServers());
+
     }
 
     @BeforeEach
     public void setup() {
-        consumer.start();
+        stringMessageConsumer = new ConsumerKafkaConsumer(kafkaProperties, stringMessageService);
+
+        stringMessageProducer = new KafkaProducer<>(
+            ImmutableMap.of(
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers()
+            ),
+            new StringSerializer(),
+            new StringSerializer()
+        );
+
+        stringMessageConsumer.start();
+
+        jsonMessageConsumer = new JsonKafkaConsumer(jsonMessageService);
+        jsonMessageProducer = new KafkaProducer<>(
+            ImmutableMap.of(
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers()
+            ),
+            new StringSerializer(),
+            new JsonSerializer()
+        );
+
+        jsonMessageConsumer.setBOOTSTRAP_SERVERS(kafkaContainer.getBootstrapServers());
+        jsonMessageConsumer.start();
+
     }
 
-    /*@Test
-    public void producedMessageHasBeenConsumed() throws Exception {
-        restMockMvc.perform(post("/api/consumer-kafka/publish?message=test"))
-            .andExpect(status().isOk());
+    @AfterEach
+    private void tearDown() {
+        stringMessageConsumer.shutdown();
+        jsonMessageConsumer.shutdown();
 
-        Map<MetricName, ? extends Metric> metrics = consumer.getKafkaConsumer().metrics();
+    }
+
+
+    @Test
+    public void producedJsonMessageHasBeenConsumed() throws Exception {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonMessage message = new JsonMessage().field1("Test").field2("Test").number(1);
+        jsonMessageProducer.send(new ProducerRecord<>("json_message_topic", objectMapper.valueToTree(message)));
+
+        Map<MetricName, ? extends Metric> metrics = jsonMessageConsumer.getJsonKafkaConsumer().metrics();
 
         Metric recordsConsumedTotalMetric = metrics.entrySet().stream()
             .filter(entry -> "records-consumed-total".equals(entry.getKey().name()))
@@ -76,7 +135,34 @@ public class ConsumerKafkaResourceIT {
 
         Assertions.assertThat(attempt).isLessThan(MAX_ATTEMPT);
         Assertions.assertThat(totalConsumedMessage).isEqualTo(expectedTotalConsumedMessage);
-    }*/
+    }
+
+    @Test
+    public void producedStringMessageHasBeenConsumed() throws Exception {
+
+        stringMessageProducer.send(new ProducerRecord<>("string_message_topic", "my-test-value"));
+
+        Map<MetricName, ? extends Metric> metrics = stringMessageConsumer.getKafkaConsumer().metrics();
+
+        Metric recordsConsumedTotalMetric = metrics.entrySet().stream()
+            .filter(entry -> "records-consumed-total".equals(entry.getKey().name()))
+            .findFirst()
+            .get()
+            .getValue();
+
+        Double expectedTotalConsumedMessage = 1.0;
+        Double totalConsumedMessage;
+        int attempt = 0;
+        do {
+            totalConsumedMessage = (Double) recordsConsumedTotalMetric.metricValue();
+            Thread.sleep(200);
+        } while (!totalConsumedMessage.equals(expectedTotalConsumedMessage) && attempt++ < MAX_ATTEMPT);
+
+        Assertions.assertThat(attempt).isLessThan(MAX_ATTEMPT);
+        Assertions.assertThat(totalConsumedMessage).isEqualTo(expectedTotalConsumedMessage);
+    }
+
 
 }
+
 
