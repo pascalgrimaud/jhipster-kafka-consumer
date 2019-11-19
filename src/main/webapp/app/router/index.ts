@@ -24,6 +24,10 @@ const JhiLogsComponent = () => import('../admin/logs/logs.vue');
 const JhiAuditsComponent = () => import('../admin/audits/audits.vue');
 const JhiMetricsComponent = () => import('../admin/metrics/metrics.vue');
 /* tslint:disable */
+// prettier-ignore
+const StringMessage = () => import('../entities/string-message/string-message.vue');
+// prettier-ignore
+const StringMessageDetails = () => import('../entities/string-message/string-message-details.vue');
 // jhipster-needle-add-entity-to-router-import - JHipster will import entities to the router here
 
 Vue.use(Router);
@@ -140,6 +144,19 @@ export default new Router({
       name: 'JhiConfigurationComponent',
       component: JhiConfigurationComponent,
       meta: { authorities: ['ROLE_ADMIN'] }
+    }
+    ,
+    {
+      path: '/entity/string-message',
+      name: 'StringMessage',
+      component: StringMessage,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/entity/string-message/:stringMessageId/view',
+      name: 'StringMessageView',
+      component: StringMessageDetails,
+      meta: { authorities: ['ROLE_USER'] }
     }
     // jhipster-needle-add-entity-to-router - JHipster will add entities to the router here
   ]
