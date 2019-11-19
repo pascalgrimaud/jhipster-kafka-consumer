@@ -1,6 +1,7 @@
 package io.github.jhipster.consumer.service;
 
 import io.github.jhipster.consumer.config.KafkaProperties;
+import io.github.jhipster.consumer.domain.StringMessage;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -26,8 +28,11 @@ public class ConsumerKafkaConsumer {
 
     private KafkaConsumer<String, String> kafkaConsumer;
 
-    public ConsumerKafkaConsumer(KafkaProperties kafkaProperties) {
+    private final StringMessageService stringMessageService;
+
+    public ConsumerKafkaConsumer(KafkaProperties kafkaProperties, StringMessageService stringMessageService) {
         this.kafkaProperties = kafkaProperties;
+        this.stringMessageService = stringMessageService;
     }
 
     public void start() {
@@ -43,6 +48,7 @@ public class ConsumerKafkaConsumer {
                     ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofSeconds(3));
                     for (ConsumerRecord<String, String> record : records) {
                         log.info("Consumed message in {} : {}", TOPIC, record.value());
+                        stringMessageService.save(new StringMessage().message(record.value()).receivedAt(Instant.now()));
                     }
                 }
                 kafkaConsumer.commitSync();
