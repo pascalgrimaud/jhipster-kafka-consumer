@@ -28,6 +28,10 @@ const JhiMetricsComponent = () => import('../admin/metrics/metrics.vue');
 const StringMessage = () => import('../entities/string-message/string-message.vue');
 // prettier-ignore
 const StringMessageDetails = () => import('../entities/string-message/string-message-details.vue');
+// prettier-ignore
+const JsonMessage = () => import('../entities/json-message/json-message.vue');
+// prettier-ignore
+const JsonMessageDetails = () => import('../entities/json-message/json-message-details.vue');
 // jhipster-needle-add-entity-to-router-import - JHipster will import entities to the router here
 
 Vue.use(Router);
@@ -156,6 +160,19 @@ export default new Router({
       path: '/entity/string-message/:stringMessageId/view',
       name: 'StringMessageView',
       component: StringMessageDetails,
+      meta: { authorities: ['ROLE_USER'] }
+    }
+    ,
+    {
+      path: '/entity/json-message',
+      name: 'JsonMessage',
+      component: JsonMessage,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/entity/json-message/:jsonMessageId/view',
+      name: 'JsonMessageView',
+      component: JsonMessageDetails,
       meta: { authorities: ['ROLE_USER'] }
     }
     // jhipster-needle-add-entity-to-router - JHipster will add entities to the router here

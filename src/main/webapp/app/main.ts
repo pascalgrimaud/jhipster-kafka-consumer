@@ -25,6 +25,7 @@ import AlertService from '@/shared/alert/alert.service';
 import ConfigurationService from '@/admin/configuration/configuration.service';
 
 import StringMessageService from '@/entities/string-message/string-message.service';
+import JsonMessageService from '@/entities/json-message/json-message.service';
 // jhipster-needle-add-entity-service-to-main-import - JHipster will import entities services here
 
 Vue.config.productionTip = false;
@@ -80,6 +81,7 @@ new Vue({
     metricsService: () => new MetricsService(),
     alertService: () => alertService,
     stringMessageService: () => new StringMessageService(),
+    jsonMessageService: () => new JsonMessageService(),
     // jhipster-needle-add-entity-service-to-main - JHipster will import entities services here
     accountService: () => accountService
   },

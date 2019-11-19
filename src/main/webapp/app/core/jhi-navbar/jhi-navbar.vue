@@ -30,6 +30,10 @@
                         <font-awesome-icon icon="asterisk" />
                         <span >StringMessage</span>
                     </b-dropdown-item>
+                    <b-dropdown-item to="/entity/json-message">
+                        <font-awesome-icon icon="asterisk" />
+                        <span >JsonMessage</span>
+                    </b-dropdown-item>
                     <!-- jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here -->
                 </b-nav-item-dropdown>
                 <b-nav-item-dropdown
