@@ -1,6 +1,8 @@
 package io.github.jhipster.consumer.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.jhipster.consumer.domain.JsonMessage;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -13,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -30,7 +33,11 @@ public class JsonKafkaConsumer {
 
     private String BOOTSTRAP_SERVERS = "localhost:9092";
 
-    public JsonKafkaConsumer() { }
+    private final JsonMessageService jsonMessageService;
+
+    public JsonKafkaConsumer(JsonMessageService jsonMessageService) {
+        this.jsonMessageService = jsonMessageService;
+    }
 
     public void start() {
         log.info("Kafka consumer starting...");
@@ -45,6 +52,9 @@ public class JsonKafkaConsumer {
         Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
 
         Thread consumerThread = new Thread(() -> {
+
+            ObjectMapper mapper = new ObjectMapper();
+
             try {
                 jsonKafkaConsumer.subscribe(Collections.singletonList(TOPIC));
                 log.info("Kafka consumer started");
@@ -52,6 +62,9 @@ public class JsonKafkaConsumer {
                     ConsumerRecords<String, JsonNode> records = jsonKafkaConsumer.poll(Duration.ofSeconds(3));
                     for (ConsumerRecord<String, JsonNode> record : records) {
                         log.info("Consumed message in {} : {}", TOPIC, record.value());
+                        JsonNode jsonNode = record.value();
+                        JsonMessage jsonMessage = mapper.treeToValue(jsonNode, JsonMessage.class);
+                        this.jsonMessageService.save(jsonMessage.receivedAt(Instant.now()));
                     }
                 }
                 jsonKafkaConsumer.commitSync();
